@@ -15,6 +15,11 @@ $(function() {
   var $armedDiv = $('#net-armed');
   var $unconnectedDiv = $('#cant-connect');
 
+  //buttons
+  var $resetTrap = $('#reset-net');
+  var $armTrap = $('#arm-net');
+  var $disarmTrap = $('disarm-net');
+
   var socket = io();
 
   function init() {
@@ -86,6 +91,17 @@ $(function() {
         setUsername();
       }
     }
+  });
+
+  $resetTrap.click(function() {
+    // fire ble write event
+    socket.emit('reset net');
+    //show appropriate screen
+    $disarmedDiv.hide();
+    $droppedDiv.hide();
+    $armedDiv.show();
+    $unconnectedDiv.hide();
+
   });
 
   // Socket events

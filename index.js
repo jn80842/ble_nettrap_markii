@@ -8,6 +8,12 @@ var port = process.env.PORT || 3000;
 var async = require('async');
 var noble = require('noble');
 
+var NETTRAP_PERIPHERAL_UUID = '583c32cb9e4745dc88b3cf5e7f127d29';
+var NETTRAP_SERVICE_UUID = '5794ba16ce6446e598046851f7b3a183';
+var NETTRAP_WAS_NET_DROPPED_CHARACTERISTIC_UUID = 'fbb3136afe49445ba6122019d1b33a6c';
+var NETTRAP_IS_NET_DISARMED_CHARACTERISTIC_UUID = 'f80fb0060e8e412c8a9219fe85328daa';
+
+
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
 });
@@ -19,12 +25,12 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function (socket) {
   var addedUser = false;
 
+  socket.on('reset net', function(data) {
+
+  };
+
   // when the client emits 'new message', this listens and executes
   socket.on('read ble', function (data) {
-    var NETTRAP_PERIPHERAL_UUID = '583c32cb9e4745dc88b3cf5e7f127d29';
-    var NETTRAP_SERVICE_UUID = '5794ba16ce6446e598046851f7b3a183';
-    var NETTRAP_WAS_NET_DROPPED_CHARACTERISTIC_UUID = 'fbb3136afe49445ba6122019d1b33a6c';
-    var NETTRAP_IS_NET_DISARMED_CHARACTERISTIC_UUID = 'f80fb0060e8e412c8a9219fe85328daa';
 
     noble.startScanning();
 
