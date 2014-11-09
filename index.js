@@ -30,7 +30,9 @@ io.on('connection', function (socket) {
 
     noble.on('discover', function(peripheral) {
      console.log('peripheral with UUID ' + peripheral.uuid + ' found');
+     if (peripheral.uuid == NETTRAP_PERIPHERAL_UUID) {
       explore(peripheral);
+    }
     });
 
     function explore(peripheral) {

@@ -159,10 +159,14 @@ p {
   color: #FFF;
 }
 
-#dropped-info {
-  color: #FFF;
+#net-disarmed {
+  display: none;
 }
 
-#disabled-info {
-  color: #FFF;
+#net-armed {
+  display: none;
+}
+
+#net-dropped {
+  display: none
 }

@@ -18,6 +18,11 @@ $(function() {
   var socket = io();
 
   function init() {
+    $disarmedDiv.hide();
+    $droppedDiv.hide();
+    $armedDiv.hide();
+    $unconnectedDiv.show();
+
     console.log("called to init");
     socket.emit("read ble");
   }
@@ -25,17 +30,30 @@ $(function() {
   function populateBleInfo(data) {
     console.log("triggered populate ble info function");
     console.log("disarmed " + data.disarmed + " dropped " + data.dropped);
-    if (data.disarmed == 't') {
-      $disarmedDiv.append("<p>YES</p>");
-      $armedDiv.append("<p>NO</p>");
+    if (data.dropped && data.disarmed) {
+      if (data.dropped == 't') {
+        $disarmedDiv.hide();
+        $droppedDiv.show();
+        $armedDiv.hide();
+        $unconnectedDiv.hide();
+      } else {
+        if (data.disarmed == 't') {
+          $disarmedDiv.hide();
+          $droppedDiv.hide();
+          $armedDiv.hide();
+          $unconnectedDiv.show();
+        } else {
+          $disarmedDiv.hide();
+          $droppedDiv.hide();
+          $armedDiv.show();
+          $unconnectedDiv.hide();
+        }
+      }
     } else {
-      $disarmedDiv.append("<p>NO</p>");
-      $armedDiv.append("<p>YES</p>");
-    }
-    if (data.dropped == 't') {
-      $droppedDiv.append("<p>YES</p>");
-    } else {
-      $droppedDiv.append("<p>NO</p>");
+      $disarmedDiv.hide();
+      $droppedDiv.hide();
+      $armedDiv.hide();
+      $unconnectedDiv.show();
     }
   }
 
