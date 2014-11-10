@@ -13,6 +13,11 @@ var NETTRAP_SERVICE_UUID = '5794ba16ce6446e598046851f7b3a183';
 var NETTRAP_WAS_NET_DROPPED_CHARACTERISTIC_UUID = 'fbb3136afe49445ba6122019d1b33a6c';
 var NETTRAP_IS_NET_DISARMED_CHARACTERISTIC_UUID = 'f80fb0060e8e412c8a9219fe85328daa';
 
+var myperipheral = null;
+var myservice = null;
+var droppedChrc = null;
+var disarmedChrc = null;
+
 
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
@@ -119,7 +124,7 @@ io.on('connection', function (socket) {
               });
             },
             function (err) {
-              peripheral.disconnect();
+             // peripheral.disconnect();
             }
           );
         });
@@ -192,10 +197,12 @@ io.on('connection', function (socket) {
                               if (characteristic.uuid == NETTRAP_IS_NET_DISARMED_CHARACTERISTIC_UUID) {
                                 console.log("disarmed value is " + string);
                                 chrcData.disarmed = string;
+                                disarmedChrc = characteristic;
                               }
                               if (characteristic.uuid == NETTRAP_WAS_NET_DROPPED_CHARACTERISTIC_UUID) {
                                 console.log("dropped value is " + string);
                                 chrcData.dropped = string;
+                                droppedChrc = characteristic;
                               }
     
                               characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
@@ -221,7 +228,8 @@ io.on('connection', function (socket) {
               });
             },
             function (err) {
-              peripheral.disconnect();
+             // peripheral.disconnect();
+             socket.emit("ready");
             }
           );
         });
@@ -231,12 +239,51 @@ io.on('connection', function (socket) {
 
   socket.on('reset net', function(data) {
       console.log("client asked to reset net");
+      var writeValue = new Buffer("f","ascii");
+      droppedChrc.write(writeValue,false,function() {
+        console.log("wrote to dropped " + writeValue.toString("ascii"));
+        socket.emit('show armed');
+      })
+  });
+
+  socket.on('disarm trap', function(data) {
+    console.log("client asked to disarm trap");
+    var writeValue = new Buffer("t","ascii");
+    disarmedChrc.write(writeValue,false,function() {
+      console.log("wrote to disarmed " + writeValue.toString("ascii"));
+      socket.emit("show disarmed");
+    })
+  });
+
+  socket.on('arm trap', function(data) {
+    console.log("client asked to arm trap");
+    var writeValue = new Buffer("f","ascii");
+    disarmedChrc.write(writeValue,false,function() {
+      console.log("wrote to disarmed" + writeValue.toString("ascii"));
+      socket.emit("show armed");
+    })
   });
 
   // when the client emits 'new message', this listens and executes
   socket.on('read ble', function (data) {
     read_ble();
   });
+
+  socket.on('ble ready', function (data) {
+    console.log("theoretically should be connected now");
+    var chrcData = {};
+    droppedChrc.read(function(err,data) {
+      console.log("value of droppedChrc is " + data.toString('ascii'))
+      chrcData.dropped = data.toString("ascii");
+      disarmedChrc.read(function(err,data) {
+        console.log("value of disarmedChrc is " + data.toString('ascii'));
+        chrcData.disarmed = data.toString("ascii");
+        console.log("ready to send data " + chrcData.disarmed + " " + chrcData.dropped);
+        socket.emit('ble info',chrcData);
+    });
+    });
+
+  })
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {

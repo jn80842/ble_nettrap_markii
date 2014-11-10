@@ -18,7 +18,7 @@ $(function() {
   //buttons
   var $resetTrap = $('#reset-net');
   var $armTrap = $('#arm-net');
-  var $disarmTrap = $('disarm-net');
+  var $disarmTrap = $('#disarm-net');
 
   var socket = io();
 
@@ -97,14 +97,39 @@ $(function() {
     // fire ble write event
     socket.emit('reset net');
     //show appropriate screen
+
+  });
+
+  $disarmTrap.click(function() {
+    socket.emit('disarm trap');
+  });
+
+  $armTrap.click(function() {
+    socket.emit('arm trap');
+  })
+
+  // Socket events
+
+  socket.on('show armed', function(data) {
     $disarmedDiv.hide();
     $droppedDiv.hide();
     $armedDiv.show();
     $unconnectedDiv.hide();
-
   });
 
-  // Socket events
+  socket.on('show disarmed', function(data) {
+    $disarmedDiv.show();
+    $droppedDiv.hide();
+    $armedDiv.hide();
+    $unconnectedDiv.hide();
+  });
+
+  socket.on('show dropped', function(data) {
+    $disarmedDiv.hide();
+    $droppedDiv.show();
+    $armedDiv.hide();
+    $unconnectedDiv.hide();
+  })
 
   socket.on('ble info', function (data) {
     console.log("main js got ble info event");
