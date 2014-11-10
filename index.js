@@ -272,6 +272,9 @@ io.on('connection', function (socket) {
   socket.on('ble ready', function (data) {
     console.log("theoretically should be connected now");
     var chrcData = {};
+    droppedChrc.on('notify',function(data) {
+      socket.emit("show armed");
+    });
     droppedChrc.read(function(err,data) {
       console.log("value of droppedChrc is " + data.toString('ascii'))
       chrcData.dropped = data.toString("ascii");
